@@ -1,18 +1,19 @@
-import React, { useState } from "react";
-import { 
-    View, 
-    TextInput, 
-    TouchableOpacity, 
-    Text, 
-    StyleSheet, 
-    Dimensions, 
-    KeyboardAvoidingView, 
-    ScrollView, 
+import React, { useState, useEffect } from "react";
+import {
+    View,
+    TextInput,
+    TouchableOpacity,
+    Text,
+    StyleSheet,
+    Dimensions,
+    KeyboardAvoidingView,
+    ScrollView,
     Platform,
     TouchableWithoutFeedback,
-    Keyboard 
+    Keyboard
 } from "react-native";
 import Colors from "../Constants/Colors";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const { width } = Dimensions.get('window');
 
@@ -20,70 +21,83 @@ const RegisterScreen = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [scrollEnabled, setScrollEnabled] = useState(false);
+
+    useEffect(() => {
+        const show = Keyboard.addListener('keyboardDidShow', () => setScrollEnabled(true));
+        const hide = Keyboard.addListener('keyboardDidHide', () => setScrollEnabled(false));
+
+        return () => {
+            show.remove();
+            hide.remove();
+        };
+    }, []);
 
     return (
         // 1. Klaviaturadan qaçmaq üçün əsas konteyner
-        <KeyboardAvoidingView 
-            behavior={Platform.OS === "ios" ? "padding" : undefined}
+
+
+        <KeyboardAwareScrollView
             style={styles.container}
-        >
-            {/* 2. Ekrana sığmayan hissələri sürüşdürmək üçün */}
-            <ScrollView 
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-            >
-                {/* 3. Boş yerə basanda klaviaturanın bağlanması üçün (opsional) */}
-                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                    <View>
-                        <Text style={styles.createAccountText}>Create account</Text>
-                        <Text style={styles.infoText}>Please enter your details</Text>
+            contentContainerStyle={styles.scrollContent}
+            enableOnAndroid={true}
+            extraScrollHeight={20}
+            keyboardShouldPersistTaps="handled"
+            bounces={false}
+            // scrollEnabled={scrollEnabled}
+            showsVerticalScrollIndicator={false}>
 
-                        <Text style={styles.inputLabel}>Your email</Text>
-                        <TextInput
-                            placeholder="E-mail"
-                            placeholderTextColor={Colors.gray}
-                            value={email}
-                            onChangeText={setEmail}
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                            style={[styles.textInput, { fontStyle: email.length === 0 ? 'italic' : 'normal' }]}
-                        />
+            <View>
+                <Text style={styles.createAccountText}>Create account</Text>
+                <Text style={styles.infoText}>Please enter your details</Text>
 
-                        <Text style={[styles.inputLabel, { marginTop: 25 }]}>Your password</Text>
-                        <TextInput
-                            placeholder="Password"
-                            placeholderTextColor={Colors.gray}
-                            secureTextEntry
-                            value={password}
-                            onChangeText={setPassword}
-                            style={[styles.textInput, { fontStyle: password.length === 0 ? 'italic' : 'normal' }]}
-                        />
+                <Text style={styles.inputLabel}>Your email</Text>
+                <TextInput
+                    placeholder="E-mail"
+                    placeholderTextColor={Colors.gray}
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    style={[styles.textInput, { fontStyle: email.length === 0 ? 'italic' : 'normal' }]}
+                />
 
-                        <Text style={[styles.inputLabel, { marginTop: 25 }]}>Confirm password</Text>
-                        <TextInput
-                            placeholder="Password"
-                            placeholderTextColor={Colors.gray}
-                            secureTextEntry
-                            value={confirmPassword}
-                            onChangeText={setConfirmPassword}
-                            style={[styles.textInput, { fontStyle: confirmPassword.length === 0 ? 'italic' : 'normal' }]}
-                        />
+                <Text style={[styles.inputLabel, { marginTop: 25 }]}>Your password</Text>
+                <TextInput
+                    placeholder="Password"
+                    placeholderTextColor={Colors.gray}
+                    secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
+                    style={[styles.textInput, { fontStyle: password.length === 0 ? 'italic' : 'normal' }]}
+                />
 
-    
-                        <TouchableOpacity style={styles.button}>
-                            <Text style={styles.buttonText}>Create account</Text>
-                        </TouchableOpacity>
+                <Text style={[styles.inputLabel, { marginTop: 25 }]}>Confirm password</Text>
+                <TextInput
+                    placeholder="Password"
+                    placeholderTextColor={Colors.gray}
+                    secureTextEntry
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    style={[styles.textInput, { fontStyle: confirmPassword.length === 0 ? 'italic' : 'normal' }]}
+                />
 
-                        <View style={{ alignItems: 'center', marginTop: 20, marginBottom: 30 }}>
-                            <Text style={{ color: Colors.white, opacity: 0.8 }}>Already have an account?</Text>
-                            <TouchableOpacity style={styles.loginButton}>
-                                <Text style={styles.loginButtonText}>Login</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </TouchableWithoutFeedback>
-            </ScrollView>
-        </KeyboardAvoidingView>
+          
+
+
+                <TouchableOpacity style={styles.button}>
+                    <Text style={styles.buttonText}>Create account</Text>
+                </TouchableOpacity>
+
+                <View style={{ alignItems: 'center', marginTop: 20, marginBottom: 30 }}>
+                    <Text style={{ color: Colors.white, opacity: 0.8, fontWeight: '600' }}>Already have an account?</Text>
+                    <TouchableOpacity style={styles.loginButton}>
+                        <Text style={styles.loginButtonText}>Login</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </KeyboardAwareScrollView>
+
     );
 }
 
@@ -94,9 +108,11 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingHorizontal: 20,
-        paddingTop: 60, // Yuxarıdan vizual boşluq
-        paddingBottom: 40, // Aşağıda rahat scroll üçün
+        paddingTop: 10, // Yuxarıdan vizual boşluq
+        paddingBottom: 10, // Aşağıda rahat scroll üçün
         flexGrow: 1,
+        // backgroundColor: Colors.fishOrange,
+        justifyContent: 'center',
     },
     createAccountText: {
         color: Colors.white,
