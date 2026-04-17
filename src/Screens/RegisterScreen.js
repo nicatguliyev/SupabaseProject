@@ -6,37 +6,20 @@ import {
     Text,
     StyleSheet,
     Dimensions,
-    KeyboardAvoidingView,
-    ScrollView,
-    Platform,
-    TouchableWithoutFeedback,
-    Keyboard
 } from "react-native";
 import Colors from "../Constants/Colors";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import Icon from '@react-native-vector-icons/ionicons'
 
-const { width } = Dimensions.get('window');
 
 const RegisterScreen = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [scrollEnabled, setScrollEnabled] = useState(false);
+    const [isVisible, setisVisible] = useState(false);
 
-    useEffect(() => {
-        const show = Keyboard.addListener('keyboardDidShow', () => setScrollEnabled(true));
-        const hide = Keyboard.addListener('keyboardDidHide', () => setScrollEnabled(false));
-
-        return () => {
-            show.remove();
-            hide.remove();
-        };
-    }, []);
 
     return (
-        // 1. Klaviaturadan qaçmaq üçün əsas konteyner
-
-
         <KeyboardAwareScrollView
             style={styles.container}
             contentContainerStyle={styles.scrollContent}
@@ -44,7 +27,6 @@ const RegisterScreen = () => {
             extraScrollHeight={20}
             keyboardShouldPersistTaps="handled"
             bounces={false}
-            // scrollEnabled={scrollEnabled}
             showsVerticalScrollIndicator={false}>
 
             <View>
@@ -62,15 +44,31 @@ const RegisterScreen = () => {
                     style={[styles.textInput, { fontStyle: email.length === 0 ? 'italic' : 'normal' }]}
                 />
 
+
                 <Text style={[styles.inputLabel, { marginTop: 25 }]}>Your password</Text>
-                <TextInput
-                    placeholder="Password"
-                    placeholderTextColor={Colors.gray}
-                    secureTextEntry
-                    value={password}
-                    onChangeText={setPassword}
-                    style={[styles.textInput, { fontStyle: password.length === 0 ? 'italic' : 'normal' }]}
-                />
+                <View style={{
+                    flexDirection: 'row', alignItems: 'center', marginTop: 10,
+                }}>
+                    <TextInput
+                        placeholder="Password"
+                        placeholderTextColor={Colors.gray}
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry={isVisible}
+                        style={[styles.textInput, { fontStyle: password.length === 0 ? 'italic' : 'normal' }]}
+                    />
+                    <TouchableOpacity
+                        style={{ position: 'absolute', right: 15, padding: 10 }}
+                        onPress={() => setisVisible(prev => !prev)}
+                    >
+                        <Icon
+                            name={isVisible ? 'eye-outline' : 'eye-off-outline'}  
+                            size={30}
+                            color="#999"
+                        />
+                    </TouchableOpacity>
+                </View>
+
 
                 <Text style={[styles.inputLabel, { marginTop: 25 }]}>Confirm password</Text>
                 <TextInput
@@ -82,7 +80,7 @@ const RegisterScreen = () => {
                     style={[styles.textInput, { fontStyle: confirmPassword.length === 0 ? 'italic' : 'normal' }]}
                 />
 
-          
+
 
 
                 <TouchableOpacity style={styles.button}>
@@ -138,9 +136,10 @@ const styles = StyleSheet.create({
         borderColor: Colors.border,
         borderWidth: 1,
         borderRadius: 12,
+        flex: 1,
         paddingHorizontal: 15,
         height: 55,
-        marginTop: 10,
+
         fontSize: 16,
     },
     button: {
